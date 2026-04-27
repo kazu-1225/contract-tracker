@@ -28,11 +28,14 @@
   #cases { display: flex; flex-direction: column; gap: 10px; }
   .case-card { background: #fff; border: 1.5px solid #e2eaf0; border-radius: 16px; padding: 16px; box-shadow: 0 1px 4px #0001; }
   .case-card.done { background: #f4fbf7; border-color: #a8dfc4; }
-  .case-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+  .case-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
   .case-name { font-size: 15px; font-weight: 700; color: #2d4059; margin-bottom: 2px; }
   .case-name.done { color: #90a4ae; text-decoration: line-through; }
   .case-partner { font-size: 12px; color: #90a4ae; }
   .deadline-badge { font-size: 11px; padding: 2px 8px; border-radius: 5px; font-family: 'DM Mono', monospace; font-weight: 600; white-space: nowrap; }
+  .case-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+  .received-info { font-size: 11px; color: #90a4ae; background: #f1f5f8; border-radius: 5px; padding: 2px 8px; white-space: nowrap; }
+  .elapsed-badge { font-size: 11px; font-family: 'DM Mono', monospace; font-weight: 600; padding: 2px 8px; border-radius: 5px; white-space: nowrap; }
   .progress-wrap { margin: 6px 0 4px; }
   .progress-bar-bg { height: 5px; background: #e8eef3; border-radius: 10px; overflow: hidden; }
   .progress-bar-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease; }
@@ -49,7 +52,7 @@
   .loading { text-align: center; color: #b0bec5; padding: 60px 0; font-size: 14px; }
   #modal-overlay { display: none; position: fixed; inset: 0; background: #0000004a; z-index: 100; align-items: center; justify-content: center; padding: 16px; }
   #modal-overlay.open { display: flex; }
-  #modal-box { background: #fff; border-radius: 18px; padding: 28px; width: 100%; max-width: 440px; box-shadow: 0 8px 40px #0002; }
+  #modal-box { background: #fff; border-radius: 18px; padding: 28px; width: 100%; max-width: 440px; box-shadow: 0 8px 40px #0002; max-height: 90vh; overflow-y: auto; }
   #modal-title { font-size: 16px; font-weight: 700; color: #334155; margin-bottom: 20px; }
   .field { margin-bottom: 14px; }
   .field label { display: block; font-size: 11px; color: #90a4ae; margin-bottom: 4px; font-weight: 700; letter-spacing: 0.8px; }
@@ -82,6 +85,7 @@
     <span class="sort-label">並び替え</span>
     <button class="sort-btn active" data-sort="deadline" onclick="setSort('deadline')">締切日順</button>
     <button class="sort-btn" data-sort="status" onclick="setSort('status')">進捗順</button>
+    <button class="sort-btn" data-sort="received" onclick="setSort('received')">受付日順</button>
     <button class="sort-btn" data-sort="new" onclick="setSort('new')">新着順</button>
   </div>
   <div id="cases"><div class="loading">⏳ 読み込み中…</div></div>
@@ -91,6 +95,7 @@
     <div id="modal-title">📄 案件を追加</div>
     <div class="field"><label>案件名</label><input id="f-name" type="text" placeholder="例：〇〇業務委託契約"></div>
     <div class="field"><label>相手先</label><input id="f-partner" type="text" placeholder="例：株式会社△△"></div>
+    <div class="field"><label>受付日</label><input id="f-received" type="date"></div>
     <div class="field"><label>締切日</label><input id="f-deadline" type="date"></div>
     <div class="field"><label>ステータス</label>
       <select id="f-status">
@@ -134,6 +139,18 @@ function daysLeft(d) {
   return Math.ceil((new Date(d) - new Date(today())) / 86400000);
 }
 
+function daysElapsed(d) {
+  if (!d) return null;
+  return Math.floor((new Date(today()) - new Date(d)) / 86400000);
+}
+
+function formatDate(d) {
+  if (!d) return "";
+  var parts = String(d).split("-");
+  if (parts.length < 3) return d;
+  return parts[0] + "年" + parseInt(parts[1]) + "月" + parseInt(parts[2]) + "日";
+}
+
 function gasCall(params, cb) {
   var cbName = "_cb" + Date.now() + Math.floor(Math.random()*10000);
   var parts = [];
@@ -144,13 +161,11 @@ function gasCall(params, cb) {
   }
   parts.push("callback=" + cbName);
   var url = GAS_URL + "?" + parts.join("&");
-
   window[cbName] = function(data) {
     try { document.body.removeChild(document.getElementById(cbName)); } catch(e){}
     delete window[cbName];
     cb(null, data);
   };
-
   var script = document.createElement("script");
   script.id = cbName;
   script.src = url;
@@ -172,11 +187,7 @@ function loadCases() {
   document.getElementById("cases").innerHTML = '<div class="loading">⏳ 読み込み中…</div>';
   showError(null);
   gasCall({ action: "getAll" }, function(err, data) {
-    if (err || !data || !data.ok) {
-      showError("読み込みに失敗しました");
-      document.getElementById("cases").innerHTML = "";
-      return;
-    }
+    if (err || !data || !data.ok) { showError("読み込みに失敗しました"); document.getElementById("cases").innerHTML = ""; return; }
     cases = data.data || [];
     renderAll();
   });
@@ -208,9 +219,7 @@ function setFilter(f) { currentFilter = f; renderAll(); }
 function setSort(s) {
   currentSort = s;
   var btns = document.querySelectorAll(".sort-btn");
-  for (var i = 0; i < btns.length; i++) {
-    btns[i].classList.toggle("active", btns[i].dataset.sort === s);
-  }
+  for (var i = 0; i < btns.length; i++) btns[i].classList.toggle("active", btns[i].dataset.sort === s);
   renderCases();
 }
 
@@ -223,6 +232,11 @@ function renderCases() {
       return a.deadline > b.deadline ? 1 : -1;
     }
     if (currentSort === "status") return (STATUS_INDEX[a.status]||0) - (STATUS_INDEX[b.status]||0);
+    if (currentSort === "received") {
+      if (!a.receivedDate && !b.receivedDate) return 0;
+      if (!a.receivedDate) return 1; if (!b.receivedDate) return -1;
+      return a.receivedDate > b.receivedDate ? 1 : -1;
+    }
     return String(b.id) > String(a.id) ? 1 : -1;
   });
 
@@ -239,6 +253,8 @@ function renderCases() {
     var isDone = c.status === "done";
     var idx = STATUS_INDEX[c.status] || 0;
     var pct = Math.round(idx / (STATUSES.length - 1) * 100);
+
+    // 締切日バッジ
     var d = daysLeft(c.deadline);
     var dbg = "#f1f5f8", dcol = "#90a4ae";
     if (d !== null) {
@@ -247,18 +263,40 @@ function renderCases() {
       else if (d <= 7) { dbg="#fffbe6"; dcol="#b49000"; }
     }
     var dlabel = d === null ? "" : d < 0 ? (Math.abs(d)+"日超過") : d === 0 ? "本日締切" : ("残"+d+"日");
+
+    // 受付日・経過日数
+    var elapsed = daysElapsed(c.receivedDate);
+    var elapsedBg = "#f0f9ff", elapsedCol = "#4a90d9";
+    if (elapsed !== null) {
+      if (elapsed >= 30) { elapsedBg="#fde8e8"; elapsedCol="#e05555"; }
+      else if (elapsed >= 14) { elapsedBg="#fff0e0"; elapsedCol="#d97706"; }
+    }
+
+    // ドット
     var dots = "";
     for (var k = 0; k < STATUSES.length; k++) {
       var st = STATUSES[k];
       dots += '<div class="progress-dot" style="background:' + (k<=idx?st.color:"#dde5ec") + ';border:1.5px solid ' + (k<=idx?st.color:"#c8d4dc") + '"></div>';
     }
+
     html += '<div class="case-card' + (isDone?" done":"") + '">';
     html += '<div class="case-top"><div>';
     html += '<div class="case-name' + (isDone?" done":"") + '">' + esc(c.name) + '</div>';
     if (c.partner) html += '<div class="case-partner">' + esc(c.partner) + '</div>';
     html += '</div>';
-    if (c.deadline) html += '<span class="deadline-badge" style="background:'+dbg+';color:'+dcol+';border:1px solid '+dcol+'33">'+dlabel+'</span>';
+    if (c.deadline) html += '<span class="deadline-badge" style="background:'+dbg+';color:'+dcol+';border:1px solid '+dcol+'33">締切 '+dlabel+'</span>';
     html += '</div>';
+
+    // 受付日・経過日数エリア
+    if (c.receivedDate) {
+      html += '<div class="case-meta">';
+      html += '<span class="received-info">📅 受付：' + formatDate(c.receivedDate) + '</span>';
+      if (elapsed !== null) {
+        html += '<span class="elapsed-badge" style="background:'+elapsedBg+';color:'+elapsedCol+';border:1px solid '+elapsedCol+'33">経過 '+elapsed+'日</span>';
+      }
+      html += '</div>';
+    }
+
     html += '<div class="progress-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:'+pct+'%;background:'+s.color+'"></div></div><div class="progress-dots">'+dots+'</div></div>';
     html += '<div class="case-bottom"><span class="status-pill" style="background:'+s.color+'18;color:'+s.color+';border-color:'+s.color+'55">'+s.label+'</span>';
     html += '<div class="case-actions">';
@@ -273,16 +311,17 @@ function renderCases() {
 }
 
 function esc(str) {
-  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  return String(str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
 function openModal(id) {
   editingId = id || null;
-  var c = id ? null : null;
+  var c = null;
   for (var i = 0; i < cases.length; i++) { if (cases[i].id == id) { c = cases[i]; break; } }
   document.getElementById("modal-title").textContent = c ? "✏️ 案件を編集" : "📄 案件を追加";
   document.getElementById("f-name").value = c ? c.name : "";
   document.getElementById("f-partner").value = c ? c.partner : "";
+  document.getElementById("f-received").value = c ? (c.receivedDate||"") : today();
   document.getElementById("f-deadline").value = c ? c.deadline : "";
   document.getElementById("f-status").value = c ? c.status : "received";
   document.getElementById("f-memo").value = c ? c.memo : "";
@@ -301,6 +340,7 @@ function saveCase() {
     id: editingId || String(Date.now()),
     name: name,
     partner: document.getElementById("f-partner").value.trim(),
+    receivedDate: document.getElementById("f-received").value,
     deadline: document.getElementById("f-deadline").value,
     status: document.getElementById("f-status").value,
     memo: document.getElementById("f-memo").value.trim()
@@ -330,7 +370,7 @@ function advanceStatus(id) {
   if (!c) return;
   var idx = STATUS_INDEX[c.status] || 0;
   var nextIdx = Math.min(idx + 1, STATUSES.length - 1);
-  var updated = { id: c.id, name: c.name, partner: c.partner, deadline: c.deadline, status: STATUSES[nextIdx].id, memo: c.memo };
+  var updated = { id: c.id, name: c.name, partner: c.partner, receivedDate: c.receivedDate||"", deadline: c.deadline, status: STATUSES[nextIdx].id, memo: c.memo };
   gasCall({ action: "save", case: updated }, function(err, data) {
     if (err || !data || !data.ok) { showError("更新に失敗しました"); return; }
     loadCases();
