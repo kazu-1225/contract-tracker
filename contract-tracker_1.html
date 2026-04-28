@@ -7,14 +7,16 @@
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #f0f4f8; color: #334155; font-family: 'M PLUS Rounded 1c', sans-serif; min-height: 100vh; }
-  button { transition: all 0.15s; cursor: pointer; font-family: 'M PLUS Rounded 1c', sans-serif; }
+  /* ① フォント：M PLUS Rounded 1c を全体に適用、ウェイト強め */
+  body { background: #f0f4f8; color: #334155; font-family: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', 'BIZ UDPGothic', sans-serif; min-height: 100vh; font-weight: 500; }
+  button { transition: all 0.15s; cursor: pointer; font-family: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', sans-serif; font-weight: 700; }
   button:hover { opacity: 0.8; transform: translateY(-1px); }
   button:active { transform: translateY(0); }
-  input, select, textarea { font-family: 'M PLUS Rounded 1c', sans-serif; }
+  input, select, textarea { font-family: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', sans-serif; font-weight: 500; }
   #header { background: #fff; border-bottom: 1px solid #e2eaf0; padding: 14px 20px; position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 6px #0001; }
   #header-inner { max-width: 720px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-  #header h1 { font-size: 18px; font-weight: 800; color: #2d4059; letter-spacing: 0.5px; }
+  /* ① タイトルフォント：丸ゴシック感を強調 */
+  #header h1 { font-size: 18px; font-weight: 800; color: #2d4059; letter-spacing: 0.5px; font-family: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', sans-serif; }
   #header-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
   #header-btns { display: flex; gap: 8px; }
   #main { max-width: 720px; margin: 0 auto; padding: 16px 14px 80px; }
@@ -22,22 +24,23 @@
   #filter-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 10px; }
   #sort-row { display: flex; gap: 6px; margin-bottom: 14px; align-items: center; }
   .sort-label { font-size: 11px; color: #b0bec5; font-weight: 700; }
-  .pill-btn { flex-shrink: 0; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1.5px solid #dde5ec; background: #fff; color: #90a4ae; }
-  .sort-btn { padding: 4px 10px; border-radius: 7px; font-size: 11px; font-weight: 700; border: 1.5px solid #dde5ec; background: #fff; color: #b0bec5; }
-  .sort-btn.active { border-color: #4a90d9; background: #e8f1fb; color: #4a90d9; }
+  /* ③ pill-btn の非アクティブ色も少し濃く */
+  .pill-btn { flex-shrink: 0; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1.5px solid #b0bec5; background: #fff; color: #607d8b; }
+  .sort-btn { padding: 4px 10px; border-radius: 7px; font-size: 11px; font-weight: 700; border: 1.5px solid #b0bec5; background: #fff; color: #607d8b; }
+  .sort-btn.active { border-color: #1565c0; background: #d0e4ff; color: #1565c0; }
   #cases { display: flex; flex-direction: column; gap: 10px; }
   .case-card { background: #fff; border: 1.5px solid #e2eaf0; border-radius: 16px; padding: 16px; box-shadow: 0 1px 4px #0001; }
   .case-card.done { background: #f4fbf7; border-color: #a8dfc4; }
   .case-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
   .case-name { font-size: 15px; font-weight: 700; color: #2d4059; margin-bottom: 2px; }
   .case-name.done { color: #90a4ae; text-decoration: line-through; }
-  .case-partner { font-size: 12px; color: #90a4ae; }
+  .case-partner { font-size: 12px; color: #607d8b; }
   .deadline-badge { font-size: 11px; padding: 2px 8px; border-radius: 5px; font-family: 'DM Mono', monospace; font-weight: 600; white-space: nowrap; }
   .case-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
-  .received-info { font-size: 11px; color: #90a4ae; background: #f1f5f8; border-radius: 5px; padding: 2px 8px; white-space: nowrap; }
+  .received-info { font-size: 11px; color: #607d8b; background: #e8eef3; border-radius: 5px; padding: 2px 8px; white-space: nowrap; }
   .elapsed-badge { font-size: 11px; font-family: 'DM Mono', monospace; font-weight: 600; padding: 2px 8px; border-radius: 5px; white-space: nowrap; }
   .progress-wrap { margin: 6px 0 4px; }
-  .progress-bar-bg { height: 5px; background: #e8eef3; border-radius: 10px; overflow: hidden; }
+  .progress-bar-bg { height: 5px; background: #d0dde6; border-radius: 10px; overflow: hidden; }
   .progress-bar-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease; }
   .progress-dots { display: flex; justify-content: space-between; margin-top: 5px; }
   .progress-dot { width: 8px; height: 8px; border-radius: 50%; }
@@ -45,24 +48,26 @@
   .status-pill { font-size: 11px; padding: 3px 11px; border-radius: 20px; font-weight: 700; white-space: nowrap; border: 1px solid; }
   .case-actions { display: flex; gap: 6px; }
   .btn-next { padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; border: 1.5px solid; }
-  .btn-edit { padding: 5px 10px; border-radius: 8px; font-size: 12px; border: 1.5px solid #dde5ec; background: #f8fafc; color: #78909c; }
-  .btn-del  { padding: 5px 10px; border-radius: 8px; font-size: 12px; border: 1.5px solid #fcd4d4; background: #fff5f5; color: #e07070; }
-  .case-memo { margin-top: 10px; font-size: 12px; color: #90a4ae; border-top: 1px solid #eef2f6; padding-top: 8px; }
+  .btn-edit { padding: 5px 10px; border-radius: 8px; font-size: 12px; border: 1.5px solid #b0bec5; background: #eceff1; color: #455a64; font-weight: 700; }
+  .btn-del  { padding: 5px 10px; border-radius: 8px; font-size: 12px; border: 1.5px solid #ef9a9a; background: #ffebee; color: #c62828; font-weight: 700; }
+  .case-memo { margin-top: 10px; font-size: 12px; color: #607d8b; border-top: 1px solid #d0dde6; padding-top: 8px; }
   .empty { text-align: center; color: #c4d0da; padding: 64px 0; font-size: 14px; }
   .loading { text-align: center; color: #b0bec5; padding: 60px 0; font-size: 14px; }
   #modal-overlay { display: none; position: fixed; inset: 0; background: #0000004a; z-index: 100; align-items: center; justify-content: center; padding: 16px; }
   #modal-overlay.open { display: flex; }
   #modal-box { background: #fff; border-radius: 18px; padding: 28px; width: 100%; max-width: 440px; box-shadow: 0 8px 40px #0002; max-height: 90vh; overflow-y: auto; }
-  #modal-title { font-size: 16px; font-weight: 700; color: #334155; margin-bottom: 20px; }
+  #modal-title { font-size: 16px; font-weight: 800; color: #334155; margin-bottom: 20px; font-family: 'M PLUS Rounded 1c', sans-serif; }
   .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 11px; color: #90a4ae; margin-bottom: 4px; font-weight: 700; letter-spacing: 0.8px; }
-  .field input, .field select, .field textarea { width: 100%; background: #f8fafc; border: 1.5px solid #dde5ec; border-radius: 9px; padding: 9px 12px; color: #334155; font-size: 14px; outline: none; }
+  .field label { display: block; font-size: 11px; color: #607d8b; margin-bottom: 4px; font-weight: 700; letter-spacing: 0.8px; }
+  /* ① 入力フィールドのフォントも丸ゴシック */
+  .field input, .field select, .field textarea { width: 100%; background: #f4f7fb; border: 1.5px solid #b0bec5; border-radius: 9px; padding: 9px 12px; color: #334155; font-size: 14px; outline: none; font-family: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', sans-serif; font-weight: 500; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: #1565c0; background: #fff; }
   .field textarea { resize: vertical; }
   #modal-btns { display: flex; gap: 10px; margin-top: 22px; }
-  #btn-cancel { flex: 1; padding: 10px; border-radius: 9px; border: 1.5px solid #dde5ec; background: #f8fafc; color: #90a4ae; font-size: 14px; }
-  #btn-save   { flex: 2; padding: 10px; border-radius: 9px; border: none; background: #4a90d9; color: #fff; font-size: 14px; font-weight: 700; }
-  .btn-primary { background: #4a90d9; color: #fff; border: none; border-radius: 12px; padding: 9px 20px; font-size: 14px; font-weight: 700; }
-  .btn-refresh { background: #f0f4f8; color: #78909c; border: 1.5px solid #dde5ec; border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 700; }
+  #btn-cancel { flex: 1; padding: 10px; border-radius: 9px; border: 1.5px solid #b0bec5; background: #eceff1; color: #607d8b; font-size: 14px; font-weight: 700; }
+  #btn-save   { flex: 2; padding: 10px; border-radius: 9px; border: none; background: #1565c0; color: #fff; font-size: 14px; font-weight: 800; }
+  .btn-primary { background: #1565c0; color: #fff; border: none; border-radius: 12px; padding: 9px 20px; font-size: 14px; font-weight: 700; }
+  .btn-refresh { background: #eceff1; color: #455a64; border: 1.5px solid #b0bec5; border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -101,9 +106,10 @@
       <select id="f-status">
         <option value="received">依頼受付</option>
         <option value="drafting">ドラフト作成中</option>
-        <option value="internal">社内確認中</option>
-        <option value="client">先方確認中</option>
-        <option value="printing">印刷・製本</option>
+        <option value="draft_exchange">ドラフト送受信</option>
+        <option value="printing">印刷製本</option>
+        <option value="sending">送付</option>
+        <option value="client_reply">先方から返信</option>
         <option value="done">締結完了</option>
       </select>
     </div>
@@ -116,13 +122,16 @@
 </div>
 <script>
 var GAS_URL = "https://script.google.com/macros/s/AKfycbwhdvGYQUWJGjtEG0T05XAwtK_fiRDb6lMXmZqUrQX0hL0cU-uaH5o1_ZKy24tYndsX/exec";
+
+// ② ステータス定義を変更、③ 色を濃くする
 var STATUSES = [
-  { id: "received", label: "依頼受付",      color: "#78909c", short: "受付" },
-  { id: "drafting", label: "ドラフト作成中", color: "#f59e0b", short: "作成" },
-  { id: "internal", label: "社内確認中",     color: "#4a90d9", short: "社内" },
-  { id: "client",   label: "先方確認中",     color: "#9b79d8", short: "先方" },
-  { id: "printing", label: "印刷・製本",     color: "#e87d9a", short: "印刷" },
-  { id: "done",     label: "締結完了",       color: "#4caf82", short: "完了" }
+  { id: "received",      label: "依頼受付",        color: "#455a64", short: "受付" },
+  { id: "drafting",      label: "ドラフト作成中",   color: "#e65100", short: "作成" },
+  { id: "draft_exchange",label: "ドラフト送受信",   color: "#1565c0", short: "ドラフト送受信" },
+  { id: "printing",      label: "印刷製本",         color: "#6a1fb5", short: "印刷製本" },
+  { id: "sending",       label: "送付",             color: "#c62828", short: "送付" },
+  { id: "client_reply",  label: "先方から返信",     color: "#00695c", short: "先方から返信" },
+  { id: "done",          label: "締結完了",         color: "#2e7d32", short: "締結完了" }
 ];
 var STATUS_INDEX = {};
 for (var si = 0; si < STATUSES.length; si++) STATUS_INDEX[STATUSES[si].id] = si;
@@ -205,11 +214,13 @@ function renderFilters() {
     var sid = STATUSES[i].id;
     counts[sid] = cases.filter(function(c){ return c.status === sid; }).length;
   }
-  var html = '<button class="pill-btn" style="' + (currentFilter==="all" ? "border-color:#4a90d9;background:#e8f1fb;color:#4a90d9;" : "") + '" onclick="setFilter(\'all\')">すべて (' + cases.length + ')</button>';
+  // ② 「すべて」タブ
+  var html = '<button class="pill-btn" style="' + (currentFilter==="all" ? "border-color:#1565c0;background:#d0e4ff;color:#1565c0;" : "") + '" onclick="setFilter(\'all\')">すべて (' + cases.length + ')</button>';
   for (var j = 0; j < STATUSES.length; j++) {
     var s = STATUSES[j];
     var active = currentFilter === s.id;
-    html += '<button class="pill-btn" style="' + (active ? "border-color:"+s.color+";background:"+s.color+"18;color:"+s.color+";" : "") + '" onclick="setFilter(\''+s.id+'\')">' + s.short + ' (' + (counts[s.id]||0) + ')</button>';
+    // ③ アクティブ時は濃い背景色
+    html += '<button class="pill-btn" style="' + (active ? "border-color:"+s.color+";background:"+s.color+"33;color:"+s.color+";font-weight:800;" : "") + '" onclick="setFilter(\''+s.id+'\')">' + s.short + ' (' + (counts[s.id]||0) + ')</button>';
   }
   document.getElementById("filter-row").innerHTML = html;
 }
@@ -254,29 +265,26 @@ function renderCases() {
     var idx = STATUS_INDEX[c.status] || 0;
     var pct = Math.round(idx / (STATUSES.length - 1) * 100);
 
-    // 締切日バッジ
     var d = daysLeft(c.deadline);
-    var dbg = "#f1f5f8", dcol = "#90a4ae";
+    var dbg = "#eceff1", dcol = "#455a64";
     if (d !== null) {
-      if (d < 0) { dbg="#fde8e8"; dcol="#e05555"; }
-      else if (d <= 3) { dbg="#fff0e0"; dcol="#d97706"; }
-      else if (d <= 7) { dbg="#fffbe6"; dcol="#b49000"; }
+      if (d < 0) { dbg="#ffebee"; dcol="#c62828"; }
+      else if (d <= 3) { dbg="#fff3e0"; dcol="#e65100"; }
+      else if (d <= 7) { dbg="#fffde7"; dcol="#f57f17"; }
     }
     var dlabel = d === null ? "" : d < 0 ? (Math.abs(d)+"日超過") : d === 0 ? "本日締切" : ("残"+d+"日");
 
-    // 受付日・経過日数
     var elapsed = daysElapsed(c.receivedDate);
-    var elapsedBg = "#f0f9ff", elapsedCol = "#4a90d9";
+    var elapsedBg = "#e3f2fd", elapsedCol = "#1565c0";
     if (elapsed !== null) {
-      if (elapsed >= 30) { elapsedBg="#fde8e8"; elapsedCol="#e05555"; }
-      else if (elapsed >= 14) { elapsedBg="#fff0e0"; elapsedCol="#d97706"; }
+      if (elapsed >= 30) { elapsedBg="#ffebee"; elapsedCol="#c62828"; }
+      else if (elapsed >= 14) { elapsedBg="#fff3e0"; elapsedCol="#e65100"; }
     }
 
-    // ドット
     var dots = "";
     for (var k = 0; k < STATUSES.length; k++) {
       var st = STATUSES[k];
-      dots += '<div class="progress-dot" style="background:' + (k<=idx?st.color:"#dde5ec") + ';border:1.5px solid ' + (k<=idx?st.color:"#c8d4dc") + '"></div>';
+      dots += '<div class="progress-dot" style="background:' + (k<=idx?st.color:"#cfd8dc") + ';border:1.5px solid ' + (k<=idx?st.color:"#b0bec5") + '"></div>';
     }
 
     html += '<div class="case-card' + (isDone?" done":"") + '">';
@@ -284,23 +292,23 @@ function renderCases() {
     html += '<div class="case-name' + (isDone?" done":"") + '">' + esc(c.name) + '</div>';
     if (c.partner) html += '<div class="case-partner">' + esc(c.partner) + '</div>';
     html += '</div>';
-    if (c.deadline) html += '<span class="deadline-badge" style="background:'+dbg+';color:'+dcol+';border:1px solid '+dcol+'33">締切 '+dlabel+'</span>';
+    if (c.deadline) html += '<span class="deadline-badge" style="background:'+dbg+';color:'+dcol+';border:1px solid '+dcol+'66">締切 '+dlabel+'</span>';
     html += '</div>';
 
-    // 受付日・経過日数エリア
     if (c.receivedDate) {
       html += '<div class="case-meta">';
       html += '<span class="received-info">📅 受付：' + formatDate(c.receivedDate) + '</span>';
       if (elapsed !== null) {
-        html += '<span class="elapsed-badge" style="background:'+elapsedBg+';color:'+elapsedCol+';border:1px solid '+elapsedCol+'33">経過 '+elapsed+'日</span>';
+        html += '<span class="elapsed-badge" style="background:'+elapsedBg+';color:'+elapsedCol+';border:1px solid '+elapsedCol+'66">経過 '+elapsed+'日</span>';
       }
       html += '</div>';
     }
 
     html += '<div class="progress-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:'+pct+'%;background:'+s.color+'"></div></div><div class="progress-dots">'+dots+'</div></div>';
-    html += '<div class="case-bottom"><span class="status-pill" style="background:'+s.color+'18;color:'+s.color+';border-color:'+s.color+'55">'+s.label+'</span>';
+    // ③ ステータスピルも濃いめ
+    html += '<div class="case-bottom"><span class="status-pill" style="background:'+s.color+'22;color:'+s.color+';border-color:'+s.color+'88">'+s.label+'</span>';
     html += '<div class="case-actions">';
-    if (!isDone) html += '<button class="btn-next" style="border-color:'+s.color+'55;background:'+s.color+'15;color:'+s.color+'" onclick="advanceStatus(\''+c.id+'\')">次へ →</button>';
+    if (!isDone) html += '<button class="btn-next" style="border-color:'+s.color+';background:'+s.color+'22;color:'+s.color+'" onclick="advanceStatus(\''+c.id+'\')">次へ →</button>';
     html += '<button class="btn-edit" onclick="openModal(\''+c.id+'\')">編集</button>';
     html += '<button class="btn-del" onclick="deleteCase(\''+c.id+'\')">削除</button>';
     html += '</div></div>';
